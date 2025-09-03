@@ -790,6 +790,7 @@ def init_ds_surface_metrics_wf(
     bids_root: str,
     output_dir: str,
     metrics: list[str],
+    entities: dict[str, str] | None = None,
     name='ds_surface_metrics_wf',
 ) -> Workflow:
     """
@@ -827,6 +828,8 @@ def init_ds_surface_metrics_wf(
     )
     outputnode = pe.Node(niu.IdentityInterface(fields=metrics), name='outputnode')
 
+    entities = entities or {}
+
     for metric in metrics:
         ds_surf = pe.MapNode(
             DerivativesDataSink(
@@ -834,6 +837,7 @@ def init_ds_surface_metrics_wf(
                 hemi=['L', 'R'],
                 suffix=metric,
                 extension='.shape.gii',
+                **entities,
             ),
             iterfield=('in_file', 'hemi'),
             name=f'ds_{metric}',
